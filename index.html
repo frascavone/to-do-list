@@ -10,13 +10,13 @@
   <body>
     <style>
       * {
-        margin: 1rem;
+        margin: 0;
         padding: 0;
         box-sizing: inherit;
       }
 
       html {
-        font-size: 1.5rem;
+        font-size: 62.5%;
         box-sizing: border-box;
       }
 
@@ -32,44 +32,104 @@
       }
 
       .container {
+        max-width: 80%;
+        font-size: 1.8rem;
         display: flex;
-        flex-flow: column;
+        flex-direction: column;
         align-items: center;
+        background-color: white;
+        box-shadow: 1rem 1rem 1rem rgb(0 0 0 / 20%);
+        padding: 1.5rem;
+      }
+      form {
+        display: flex;
+        margin-top: 2rem;
+      }
+      .todo {
+        padding: 0.8rem;
+      }
+      .add {
+        width: 5rem;
+        border: none;
+        font-size: 2rem;
+        font-weight: 800;
+        background-color: green;
+        padding: 0.8rem;
+        color: white;
+      }
+      li {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 1rem;
+        box-shadow: 1rem 1rem 1rem rgb(0 0 0 / 20%);
+      }
+
+      li > button {
+        font-size: 1.8rem;
+        font-weight: 800;
+        border: none;
+        background-color: orangered;
+        padding: 0.8rem;
+        margin: 0 0 0 1rem;
+        color: white;
       }
     </style>
+
     <div class="container">
       <h3>Cose da fare:</h3>
       <ul id="todos"></ul>
-
-      <form>
-        <input type="text" name="todo" />
-        <input type="submit" value="Aggiungi" />
+      <form class="form">
+        <input class="todo" type="text" name="todo" placeholder="aggiungi..." />
+        <input class="add" type="submit" value="+" />
       </form>
     </div>
+
     <script>
+      'use strict';
+
       const form = document.querySelector('form');
       const input = document.querySelector("[name='todo']");
       const toDoList = document.getElementById('todos');
       const existingTodos = JSON.parse(localStorage.getItem('todos'));
-      const toDoData = existingTodos || [];
+      let toDoData = existingTodos || [];
 
-      addToDo = function (todoText) {
+      const renderToDo = function (todoText) {
         if (todoText !== '') {
-          toDoData.push(todoText);
           const li = document.createElement('li');
           li.innerHTML = todoText;
-          toDoList.appendChild(li);
+          toDoList.append(li);
+          const delBtn = document.createElement('button');
+          delBtn.innerHTML = 'X';
+          li.append(delBtn);
+
+          delBtn.addEventListener('click', (e) => {
+            e.target.parentElement.remove();
+            toDoData = toDoData.filter((todo) => todo !== todoText);
+            localStorage.setItem('todos', JSON.stringify(toDoData));
+          });
+        }
+      };
+
+      const addToDo = function (todoText) {
+        if (todoText !== '') {
+          toDoData.push(todoText);
           localStorage.setItem('todos', JSON.stringify(toDoData));
         }
       };
 
-      form.onsubmit = (e) => {
+      input.focus();
+
+      toDoData.forEach((todo) => {
+        renderToDo(todo);
+      });
+
+      document.querySelector('.add').addEventListener('click', (e) => {
         e.preventDefault();
+        renderToDo(input.value);
         addToDo(input.value);
         input.value = '';
-      };
-      toDoData.forEach((todo) => {
-        addToDo(todo);
+        input.focus();
       });
     </script>
   </body>
